@@ -7,7 +7,7 @@ namespace FON;
  * if(\FON\J::getInstance()->changeCall($apiUrl, $data, $option)->neesReturn()) { return \FON\J::getInstance()->getReturn(); }
  * \FON\J::getInstance()->curlBackShow($apiUrl, $data, $response);
  */
-class J extends FonBase
+class J
 {
 	private static $_instance; # 对象的单例
 	private $_return; # 需要返回给接口调用的数据

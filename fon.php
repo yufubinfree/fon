@@ -1,5 +1,5 @@
 <?php
-require('./init.php'); # 初始化
+require(__DIR__ . '/init.php'); # 初始化
 \FON\J::getInstance()->setCallUrl('http://106.184.2.121:8080'); # alpha
 // \FON\J::getInstance()->setCallUrl('http://173.255.246.189:8080'); # beta
 // \FON\J::getInstance()->setAllUrl('lang', 'cn');

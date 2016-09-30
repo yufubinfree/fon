@@ -2,6 +2,25 @@
 class Tools {
 	private static $_instance;
 	private static $temp_var = '';
+
+	public static function qr($value, $size, $margin) {
+		if(empty($value)) {
+			return '';
+		}
+
+		if(empty($size)) {
+			$matrixPointSize = "4"; 
+		} else {
+			$matrixPointSize = $size;
+		}
+
+		ob_start();
+		QRcode::png($value, false, "L", $matrixPointSize, $margin);
+		$ret = ob_get_clean();
+
+		return $ret;
+	}
+
 	# explode的加强版
 	function explode($con = '', $token = ',') {
 		return !is_string($con) || empty($con) || !strlen($token)
@@ -144,10 +163,10 @@ class Tools {
         $title = array_keys($info['0']);
 
         // 定义首行
-        $ret = '<table style="border-collapse:collapse; text-align:center;" width="100%" border="1">';
+        $ret = '<table class="table table-striped table-hover"><tbody>';
         $ret .= '<tr>';
         foreach($title as $tcol) {
-            $ret .= "<td style='background: #2E85C3; color: #F0F4F5; font-weight: bold;'>{$tcol}</td>";
+            $ret .= "<td>{$tcol}</td>";
         }
         $ret .= '</tr>';
 
@@ -162,7 +181,7 @@ class Tools {
             }
             $ret .= '</tr>';
         }
-        $ret .= '</table>';
+        $ret .= '</tbody></table>';
 
         return $ret;
     }
@@ -608,7 +627,7 @@ class Tools {
 		$tmp_info = explode("\n", $info);
 		foreach($tmp_info as $k => $v) {
 			// $v = str_replace(array("\t", "\n", "\r"), '', $v);
-			$v = trim($v, "\t\n\r");
+			$v = trim($v, "\t\n\r ");
 			if(!empty($v)) {
 				$ret[$k] = $v;
 			}

@@ -37,6 +37,9 @@ class J
 	protected $_useSave       = false; # 是否使用保存的结果作为返回 只有保存过的数据才能使用
 	protected $_useSaveResult = ''; # 保存的数据
 	protected $_useSaveKey    = array(); # 需要使用文件的命令
+	public    $changeUrl      = null; # 命令存放
+
+	
 
 	protected $_msg          = ''; # 显示结果时,需要用户看到的信息
 
@@ -85,8 +88,6 @@ class J
 			die('请使用getInstance获取此对象');
 		}
 		self::$_instance = $this;
-
-		$this->changeUrl = JConfig::getInstance()->getJavaCallChangeData();
 	}
 
 	public function save() {
@@ -126,6 +127,13 @@ class J
 	}
 
 	public function changeCall(&$url, &$dataOri, &$option) {
+		# 调用时再初始化设置
+		if($this->changeUrl == null) {
+			$jconfig = JConfig::getInstance()->getJavaCallChangeData();
+			$this->changeUrl = empty($jconfig) ? array() : $jconfig;
+
+		}
+
 		$data = json_decode($dataOri, true);
 
 		if(($this->_useSave || $this->_useSaveKey[$data['command']]) && $this->useSave($data['command'], $dataOri)) {

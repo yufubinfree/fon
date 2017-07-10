@@ -2,9 +2,6 @@
 require(__DIR__ . '/init.php'); # 初始化
 $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; # ajax设定
 
-// $a = ''; for($i=0; $i<10; $i++) {$a .= 'CODE' . $i . ',PIN' . $i*10 . "\r\n"; }
-// v(file_put_contents('/Users/yufubin/Desktop/' . date("YmdHis", time()) . '.csv', $a));
-
 \F\D::_n()->c_url(':8080', 'http://127.0.0.1:8080');
 
 

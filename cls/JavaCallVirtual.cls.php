@@ -20,10 +20,10 @@ class J
 	private $_selfBackReturn = array(); # 自定义返回了的规则
 	private $_allConfig      = array();
 	private $_callUrl        = ''; // 全局变更的调用链接
-	protected $_dataPath     = '/fon/cfg/JConfig/data';	
+	protected $_dataPath     = '/fon/Documents/Code/fon/cfg/JConfig/data';	
 
 	# 请求保存设置
-	protected $_saveAll      = false; # 是否保存全部的请求
+	protected $_saveAll      = true; # 是否保存全部的请求
 	protected $_saveResult   = array(); # 保存哪些请求
 
 	# 在请求结束后才有结果
@@ -38,8 +38,12 @@ class J
 	protected $_useSaveResult = ''; # 保存的数据
 	protected $_useSaveKey    = array(); # 需要使用文件的命令
 	public    $changeUrl      = null; # 命令存放
-
 	
+	protected $showEndAr      = []; # 展示结果时添加在后面的部分
+	protected $showEndStr     = ''; # 展示结果时添加在后面的部分
+	protected $HasNewJavaError = false; # 是否有java返回异常
+	protected $showNewJavaError = true; # 有新的java错误是否显示
+	protected $_unSaveResult = []; # 不需要展示返回的数据
 
 	protected $_msg          = ''; # 显示结果时,需要用户看到的信息
 
@@ -48,10 +52,20 @@ class J
 	}
 
 	public function setUseSave($save) {
-		$this->_useSaveKey[$save] = true;
+		if(empty($save)) {
+			return;
+		}
+		if(is_array($save)) {
+			foreach ($save as $v) {
+				$this->_useSaveKey[$v] = true;
+			}
+		} else {
+			$this->_useSaveKey[$save] = true;
+		}
 	}
 
 	public function useSave($command, $data) {
+
 		$name = $this->_dataPath . '/' . str_replace('/', '_', $command) . '__' . md5($data);
 		$ret = file_get_contents($name, $this->_ret_str);
 
@@ -60,15 +74,42 @@ class J
 		return !empty($ret);
 	}
 
-	public function setSaveAllResult() {
-		$this->_saveAll = true;
+	public function setSaveRead($command) {
+		if(empty($command)) {
+			return;
+		}
+		$this->setSaveResult($command);
+		$this->setUseSave($command);
+	}
+
+	public function setSaveAllResult($set = false) {
+		$this->_saveAll = $set;
 	}
 
 	public function setSaveResult($command) {
 		if(empty($command)) {
 			return;
 		}
-		$this->_saveResult[$command] = true;
+		if(is_array($command)) {
+			foreach ($command as $v) {
+				$this->_saveResult[$v] = true;
+			}
+		} else {
+			$this->_saveResult[$command] = true;
+		}
+	}
+
+	public function u($command) {
+		if(empty($command)) {
+			return;
+		}
+		if(is_array($command)) {
+			foreach ($command as $v) {
+				$this->_unSaveResult[$v] = true;
+			}
+		} else {
+			$this->_unSaveResult[$command] = true;
+		}
 	}
 
 
@@ -83,7 +124,7 @@ class J
 		$this->_allConfig[$name] = $value;
 	}
 
-	public function __construct() {
+	private function __construct() {
 		if(self::$_instance && $this !== self::$_instance) {
 			die('请使用getInstance获取此对象');
 		}
@@ -127,6 +168,9 @@ class J
 	}
 
 	public function changeCall(&$url, &$dataOri, &$option) {
+		if(strpos($url, '127.0.0.1:8011')) {
+			return self::$_instance;
+		}
 		# 调用时再初始化设置
 		if($this->changeUrl == null) {
 			$jconfig = JConfig::getInstance()->getJavaCallChangeData();
@@ -247,7 +291,9 @@ class J
 			array_unshift($ret, '<h3 style="color:red; text-align:center;">自定义的返回: ' . $data_ar['command'] . '</h1>');
 		}
 
-		$this->_callData[] = $ret;
+		if(!in_array($data_ar['command'], $this->_unSaveResult)) {
+			$this->_callData[] = $ret;
+		}
 
 		if(isset($this->_monitor[$data_ar['command']])) {
 			$this->_callMData[] = $ret;
@@ -255,10 +301,17 @@ class J
 	}
 
 	function __destruct() {
-		if(!$this->_show) {
-			return;
+		if($this->_show) {
+			$this->showS();
 		}
 
+		if($this->showNewJavaError) {
+			$this->showJavaNewError();
+		}
+		
+	}
+
+	function showS() {
 		if(!empty($this->_callMData)) {
 			return $this->_showFormat($this->_callMData);
 		}
@@ -266,6 +319,18 @@ class J
 
 		if(!empty($data)) {
 			$this->_showFormat($data);
+		}
+	}
+
+	function showJavaNewError() {
+		if(!empty($this->showEndStr)) {
+			echo $this->showEndStr;
+		}
+
+		if(!empty($this->showEndAr)) {
+			echo '<pre>';
+			p($this->showEndAr);
+			echo '</pre>';
 		}
 	}
 
@@ -285,7 +350,13 @@ class J
 		}
 
 		$this->_show = true;
-		$this->_monitor[$command] = $cfg;
+		if(is_array($command)) {
+			foreach($command as $v) {
+				$this->_monitor[$v] = $cfg;
+			}
+		} else {
+			$this->_monitor[$command] = $cfg;
+		}
 	}
 
 	/**
@@ -294,5 +365,30 @@ class J
 	 */
 	function s() {
 		$this->_show = true;
+	}
+
+	function je($bool = true) {
+		$this->showNewJavaError = $bool;
+	}
+
+	function callErrorHandle($apiUrl, $data, $result) {
+		if(!$this->showNewJavaError) {
+			return ;
+		}
+
+		$result_ar = json_decode($result, true);
+		if(isset($result_ar['result']['code']) && $result_ar['result']['code'] <> 0) {
+			if(!$this->HasNewJavaError) {
+				$this->showEndStr = '<h1 style="color: red; text-align:center; border: 1px solid; background-color: black;">请注意有JAVA返回错误!</h1>';
+			}
+			$this->showEndAr[] = array(
+				'Command'    => $data_ar['command'],
+				'Host'       => $apiUrl,
+				'CallJson'   => $data,
+				'CallAr'     => json_decode($data, 1),
+				'Response'   => $result,
+				'ResponseAr' => $result_ar,
+			);
+		}
 	}
 }

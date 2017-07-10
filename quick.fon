@@ -1,0 +1,457 @@
+PHP: --------------------------
+# 添加
+$this->dmsdk->setOptions(array(
+    CURLOPT_CONNECTTIMEOUT => 2,
+    CURLOPT_TIMEOUT        => 60,
+));
+
+$this->api->dmsdk->setOptions(array(
+            CURLOPT_CONNECTTIMEOUT => 2,
+            CURLOPT_TIMEOUT        => 120,
+        ));
+
+# 一般头部js引用
+{use class="common\helpers\Url"}
+{\app\assets\Asset::registerAssets($this,['js'=>['js/vote.js'],'css'=>['css/vote.css'],'depends'=>['yii\jui\JuiAsset'] ])}
+
+# ajax请求时
+$this->request->isAjax 
+$this->error( $e->getMessage() );
+$this->success( '操作成功' );
+
+# 请求转化
+{Url::to(['vote/change-status'])}
+\common\Url::to(['vote/change-status'])
+
+## 折扣类
+Url::forkHost('www') . "deal/{$dealInfo['dealId']}.html" 
+Url::forkHost('cn') . "deal/{$dealInfo['dealId']}.html"
+Url::forkHost('www') . 'localdeals' . {DB.ugc.local_deal.url}
+
+## 前缀类
+Url::forkHost('www')
+Url::forkHost('cn')
+
+## 保留一位有效数字
+number_format((round((intval($ret['itemTotal'])/intval($ret['voteTotal']) * 1000)) / 10), 1, '.', '');
+
+## 验证日期是否为日期
+strtotime( date('Y-m-d', strtotime($filter['startDate'])) ) === strtotime( $filter['startDate'] )
+
+## 正则
+字符  含义
+\d  任意一个十进制数字[0-9]
+\D  任意一个非十进制数字
+\s  任意一个空白字符(空格、换行符、换页符、回车符、字表符)
+\S  任意一个非空白字符
+\w  任意一个单词字符
+\W  任意个非单词字符
+\a  报警
+\b  退格
+\f  换页
+\n  换行
+\r  回车
+\t  字表符
+
+修饰符 说明
+i   忽略大小写
+m   多文本模式
+s   单行文本模式
+x   忽略空白字符
+
+## 单例
+class DB    
+{    
+    private $_db;    
+    private static $_instance;    
+    
+    private function __construct(...) {}
+    
+    private function __clone() {};
+    
+    public static function getInstance()    
+    {    
+        if(! (self::$_instance instanceof self) ) {    
+            self::$_instance = new self();    
+        }    
+        return self::$_instance;    
+    }    
+}  
+
+# JS: --------------------------
+
+## 基本框架
+(function($, win, undef) {
+    var init = function() {
+        alert(ok);
+    };
+
+    $(init);
+}(jQuery, window));
+
+## 冒泡获取事件
+$(".vote_main").on("click", "[dm-action=changeVoteStatus]", vote.list.changeVoteStatus);
+
+## ajax
+$.ajax({
+    url: statistics.link.quickDays,
+    type: 'POST',
+    data: {
+    	"days" : days
+    },
+    async: false,
+    dataType: 'json',
+    success: function(data){
+    	if(!data || data.status != 1) {
+            alert(data.msg || '操作失败，请稍后重试');
+    	}
+
+    }
+});
+
+$.post(comment.add_like_url, { dealId: dealId }, function (data) { alter('ok'); }, 'text');
+
+## js模板
+<script type="text/template" id="vote_item"></script>
+
+## 查看点击是否在框内
+$(document).on('click', function(e) {
+    // 不能使用this,因为this指的是document
+    console.log($(e.target).closest('.vote_connect_deal').length);
+})  
+
+## 生成链接
+$.param({a:1,b:2});
+
+$(this).closest( selector ); // 从元素本身开始，在DOM 树上逐级向上级元素匹配，并返回最先匹配的祖先元素。
+$(this).next( [selector ] ); // 取得匹配的元素集合中每一个元素紧邻的后面同辈元素的元素集合。如果提供一个选择器，那么只有紧跟着的兄弟元素满足选择器时，才会返回此元素。
+$(this).parent( [selector ] ); // 取得匹配元素集合中，每个元素的父元素，可以提供一个可选的选择器。
+$(this).siblings([selector ]); // 获得匹配元素集合中每个元素的兄弟元素,可以提供一个可选的选择器    
+$(this).children([selector ]); // 获得匹配元素集合中每个元素的子元素，选择器选择性筛选。
+$(this).find([selector ]); // 通过一个选择器，jQuery对象，或元素过滤，得到当前匹配的元素集合中每个元素的后代，选择器选择性筛选。
+
+## 插入内容
+
+
+
+
+## 可排序
+### 引入相关JS文件和类[后台默认就引用了]
+<div class="clearfix  vote_sortable ui-sortable">
+    <div class="clearfix ui-sortable-handle"></div>
+    <div class="clearfix ui-sortable-handle"></div>
+</div>
+
+var myDate = new Date();
+myDate.getYear();        //获取当前年份(2位)
+myDate.getFullYear();    //获取完整的年份(4位,1970-????)
+myDate.getMonth();       //获取当前月份(0-11,0代表1月)
+myDate.getDate();        //获取当前日(1-31)
+myDate.getDay();         //获取当前星期X(0-6,0代表星期天)
+myDate.getTime();        //获取当前时间(从1970.1.1开始的毫秒数)
+myDate.getHours();       //获取当前小时数(0-23)
+myDate.getMinutes();     //获取当前分钟数(0-59)
+myDate.getSeconds();     //获取当前秒数(0-59)
+myDate.getMilliseconds();    //获取当前毫秒数(0-999)
+myDate.toLocaleDateString();     //获取当前日期
+var mytime=myDate.toLocaleTimeString();     //获取当前时间
+myDate.toLocaleString( );        //获取日期与时间
+
+### 排序相关代码
+function(){
+    $('.vote_sortable').sortable({
+        revert: true,
+        opacity: 0.7
+    });
+}
+#### 排序支持参数
+stop: 回调函数
+
+
+## ifrom调整高度
+
+// 调整投票的高度
+$(function(){
+    $("iframe[name=voteInfo]").on('load', function() {
+        var mainheight = $(this).contents(document).height();
+        $(this).height(mainheight);
+    });
+});
+
+## 日期控件
+$(that).datetimepicker({
+    dateFormat: 'yy-mm-dd',
+    timeFormat: 'hh:mm:ss',
+    showTime: false,
+    showHour: false,
+    showMinute: false,
+    showSecond: false,
+    changeMonth: true,
+    changeYear: true,
+});
+
+## 上传图片
+!!! 注意,这个是使用的时候直接调用就可,不用初始化!!!
+<div class="col-sm-10 form-area-input file-pic" disabled>
+    <img src="/images/integral/default-img.jpg" class="image"  width="150" height="100">
+    <input type="hidden" value="" id="img_url"/>
+    <div class="upload_pic_shop">
+        <button name="localUploadImage" class="btn btn-default btn-sm localUploadImage">上传图片</button>
+    </div>
+</div>
+banner.upload_url  = "{Url::to(['upload/upload'])}";
+
+$('.localUploadImage').upload({
+    name: 'file',
+    method: 'post',
+    action: banner.upload_url,
+    enctype: 'multipart/form-data',
+    params: {
+        path: '/images/ul/',
+        dest: 'date_auto',
+        file: 'img1',
+        state: 'singleDeal'
+    },
+    autoSubmit: true,
+    onComplete: function (data) {
+        data = JSON.parse(data);
+        var str = '';
+        if (data && data.status == 1) {
+            str = data.data;
+        } else {
+            pageAlert(data.msg || '发生未知错误，请稍后重试');
+        }
+        $("#img_url").val(str);
+        $('.image').attr('src',str);
+    }
+});
+
+# 可以通过!important来修正input的狂飙问题
+#medalEditInfo input[name=file] { position: absolute !important; top: 0px !important; left: 0px !important; z-index: 999; width: 100%; height: 100%; margin-left: 0 !important; margin-top: 0 !important; }
+
+## 返回上一页
+<button class="btn btn-primary" onclick="javascript:history.back(-1);">返回</button>
+
+## 日期
+{use class="common\helpers\Url"}
+{\common\assets\Asset::registerAssets($this,['js'=>['js/jquery.cookie.js','js/jquery.ocupload-1.1.2.js','js/jquery-ui-timepicker-addon.js','js/jquery.zclip.min.js'],'depends'=>['yii\jui\JuiAsset']])}
+
+<input type="text" id="dateStart" name="dateStart" value="" class="form-control input-sm hasDatepicker" placeholder="开始日期">
+
+$(this).datetimepicker({
+    dateFormat: 'yy-mm-dd',
+    timeFormat: 'hh:mm:ss'
+});
+
+{$v|date_format:"%Y-%m-%d %H:%M:%S"}
+
+# 头部提示框
+pageAlert('adsf');
+
+模板: --------------------------
+{if $current_item|in_array:$selected_array}
+
+DB: --------------------------
+dm_ucenter.login_info # 用户登录token
+dm_ucenter.admin # 后台用户信息
+dm_ucenter.admin_log # 管理员日志
+
+CSS: --------------------
+## 遮罩层
+.overlay {height: 100%; width: 100%; position: fixed; left: 0; opacity: 0.5; top: 0; background: rgba(0,0,0,0.4); z-index: 1; }
+
+HTML: -------------
+{\yii\widgets\LinkPager::widget(['pagination' => $pages,
+    'firstPageLabel' => '首页',
+    'lastPageLabel' => '末页',
+    'options'=>['class' => 'pagination pagination-sm'],
+    'maxButtonCount' => 5])}
+
+# 调试相关 --------------------
+## BJ机器
+http://106.184.2.121:8080
+X_REQUESTED_WITH    XMLHttpRequest
+
+# CSS适应屏幕分辨率
+@media(min-device-width:375px) and (max-device-width:667px) and (-webkit-min-device-pixel-ratio:2){
+    .deal_vote_title{border-bottom:0.5px solid #e6e6e6; padding:10px; height:44px; line-height:24px; font-size:14px;}
+}
+
+@media(min-device-width:414px) and (max-device-width:736px) and (-webkit-min-device-pixel-ratio:3){
+    .deal_vote_title{border-bottom:1/3px solid #e6e6e6; padding:10px; height:44px; line-height:24px; font-size:14px;}
+}
+
+# smarty 
+* 日期
+{$item.lastTime|date_format:"%Y-%m-%d %H:%M:%S"}
+
+not equal：不等于 
+greater than：大于 
+less than：小于 
+less than or equal：小于等于 
+great than or equal：大于等于 
+is even：是偶数 
+is odd：是奇数
+is not even：不是偶数 
+is not odd：不是奇数 
+not：非 
+mod：取余 
+div by：被。。。除
+if语句和和条件同php差不多，但每个词之间必须用空格分割开。 
+也有一些新的条件语句，列举如下： 
+eq相等
+ne、neq不相等
+gt大于
+lt小于
+gte、ge大于等于 
+lte、le 小于等于 
+not非，mod求模
+is [not] div by是否能被某数整除
+is [not] even是否为偶数
+$a is [not] even by $b即($a / $b) % 2 == 0， 
+is [not] odd是否为奇
+$a is not odd by $b即($a / $b) % 2 != 0  
+equal : 相等
+
+## 虚拟机启动
+/opt/elasticsearch-1.4.2/bin/service/elasticsearch start
+JAVA用户  /opt/java/rundir2/startapi.sh  start/restart all
+
+
+#### git
+# git push --force origin dev_medal
+# git merge --squash breanch
+
+
+### 权限添加
+config/permission.php
+views/useful-link/index.tpl
+
+
+
+
+
+## 前台登录
+837572415@qq.com
+xuanyan1983@gmail.com
+
+# 与北京同步的Cookie
+$.cookie('usertoken', '14386|c96c788a3cefe58749215e103d9a8e3e', {
+    "path":"/",
+    "domain":".dealmoon.com",
+});
+
+$.cookie('usertoken', '2|860920065268f1912134033f8d2acd47', {
+    "path":"/",
+    "domain":".dealmoon.com",
+});
+
+
+# 正则表达 - javascript
+/**正整数匹配表达式*/
+var pattern=/^[0-9]*[1-9][0-9]*$/;
+var flag = pattern.test(a);
+如果a是正整数，flag的boolean值为true，如果a不是正整数，flag的boolean值为false。
+
+
+
+/**浮点数匹配表达式*/
+var pattern = /^([-]){0,1}([0-9]){1,}([.]){0,1}([0-9]){0,}$/;
+
+/**浮点数匹配表达式且只保留两位小数*/
+var pattern=/^-?\d+[\.\d]?\d{0,2}$/;
+
+/**正浮点数匹配表达式*/
+var pattern=/^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/;
+
+/**正浮点数且保留两位小数匹配表达式*/
+var pattern=/^(([1-9]\d*(\.\d?[0-9])?)|(0\.[1-9][0-9])|(0\.[0][1-9]))$/;
+
+/**负浮点数匹配表达式*/
+var pattern=/^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/;
+
+/**负浮点数且保留两位小数匹配表达式*/
+var pattern=/^-(([1-9]\d*(\.\d?[0-9])?)|(0\.[1-9][0-9])|(0\.[0][1-9]))$/;
+
+/**负浮点数+0 匹配表达式*/
+var pattern=/^((-\d+(\.\d+)?)|(0+(\.0+)?))$/;
+
+/**负浮点数+0 并且保留两位小数匹配表达式*/
+var pattern=/^((-\d+[\.\d]?\d{0,2})|(0+(\.0+)?))$/;
+
+正浮点+0匹配表达式
+var pattern = /^\d+(\.\d+)?$/;
+
+/**正浮点+0匹配表达式且只保留两位小数*/
+var pattern=/^\d+[\.\d]?\d{0,2}$/;
+
+/**整数匹配表达式*/
+var pattern=/^-?\d+$/;
+
+/**正整数匹配表达式*/
+var pattern=/^[0-9]*[1-9][0-9]*$/;
+
+/**负整数匹配表达式*/
+var pattern=/^-[0-9]*[1-9][0-9]*$/;
+
+/**正整数+0 的匹配表达式*/
+var pattern=/^\d+$/;
+
+/**负整数+0 的匹配表达式*/
+var pattern=/^((-\d+)|(0+))$/;
+
+/**全是数字匹配表达式*/
+var pattern=/^[0-9]{1,20}$/
+
+JAVA -------------
+/**
+ * 基本函数
+ * @param req
+ * @return
+ */
+public SdkResponse xxx(SdkRequest req) {
+    SdkResponse rep = new SdkResponse();
+    return rep;
+}
+
+YII:--------------------
+* 数据库
+// INSERT (table name, column values)
+Yii::$app->db->createCommand()->insert('user', [
+    'name' => 'Sam',
+    'age' => 30,
+])->execute();
+
+// UPDATE (table name, column values, condition)
+Yii::$app->db->createCommand()->update('user', ['status' => 1], 'age > 30')->execute();
+
+// DELETE (table name, condition)
+Yii::$app->db->createCommand()->delete('user', 'status = 0')->execute();
+
+// table name, column names, column values
+Yii::$app->db->createCommand()->batchInsert('user', ['name', 'age'], [
+    ['Tom', 30],
+    ['Jane', 20],
+    ['Linda', 25],
+])->execute();
+
+// 返回多行. 每行都是列名和值的关联数组.
+// 如果该查询没有结果则返回空数组
+$posts = Yii::$app->db->createCommand('SELECT * FROM post')
+            ->queryAll();
+
+// 返回一行 (第一行)
+// 如果该查询没有结果则返回 false
+$post = Yii::$app->db->createCommand('SELECT * FROM post WHERE id=1')
+           ->queryOne();
+
+// 返回一列 (第一列)
+// 如果该查询没有结果则返回空数组
+$titles = Yii::$app->db->createCommand('SELECT title FROM post')
+             ->queryColumn();
+
+// 返回一个标量值
+// 如果该查询没有结果则返回 false
+$count = Yii::$app->db->createCommand('SELECT COUNT(*) FROM post')
+             ->queryScalar();
+

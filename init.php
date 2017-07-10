@@ -6,6 +6,7 @@ defined('E_DEPRECATED')
 define('F_ROOT', __DIR__ . '/'); # 根目录
 define('F_CONFIG', F_ROOT . 'cfg/'); # 配置文件
 define('F_CLS', F_ROOT . 'cls/'); # 所有方法/类库
+define('F_TEST', F_ROOT . 'test/'); # 测试文件
 define('F_VIEW', F_ROOT . 'view/'); # 所有方法/类库
 
 date_default_timezone_set('PRC');
@@ -20,8 +21,8 @@ ini_set('max_execution_time',    0);
 session_start();
 
 $initPath = array(
-	'.php' => F_CONFIG,
-	'.cls.php'   => F_CLS,
+	'.php'     => F_CONFIG,
+	'.cls.php' => F_CLS,
 );
 
 # 引用配置文件
@@ -33,4 +34,13 @@ foreach($initPath as $suffix => $path) {
 
 	    require($path . $fileName);
 	}
+}
+
+# 引入测试的文件
+foreach (scandir(F_TEST) as $fileName) {
+    if(strpos($fileName, '.php') === false) {
+        continue;
+    }
+
+    require(F_TEST . $fileName);
 }

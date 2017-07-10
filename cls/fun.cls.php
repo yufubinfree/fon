@@ -1,14 +1,40 @@
 <?php
 function v() {
     $ret = debug_backtrace();
+    echo '<pre>'; #print_r($ret); exit;
     $info = reset($ret);
     $args = func_get_args();//获得传入的所有参数的数组
-    echo "<pre><hr /><span style='color:CornflowerBlue; font-weight:bold;'>{$info['file']}:{$info['line']}<br /><hr /></span>";
+    if(is_array($args['0']) && strtolower($args['0']['0']) == 'd') {
+        echo "调用堆栈:\n";
+        foreach($ret as $v) {
+            echo print_r(array(
+                'file'     => $v['file'],
+                'line'     => $v['line'],
+                'class'    => $v['class'],
+                'function' => $v['function'],
+                'type'     => $v['type'],
+                'args'     => $args['0']['1'] ? $v['args'] : vToOne($v['args']),
+            ), true);
+        }
+    }
+    $time = '[' . time() . '|' . date("Y-m-d H:i:s", time()) . ']';
+    echo "<pre><hr /><span style='color:red; font-weight:bold;'>{$time}</span> <span style='color:CornflowerBlue; font-weight:bold;'>{$info['file']}:{$info['line']}<br /><hr /></span>";
     foreach ($args as $k => $v) {
         echo '<div style="background-color:DarkSeaGreen; height:30px; text-align:center;line-height:28px; border-radius:5px; text-shadow: 1px 1px 1px #333; font-weight:bold; border:1px solid yellow; color:tomato; width:20%"">' . ++$k . '</div>';
         var_dump($v);
     }
-    exit;
+    if(!is_array($args['0']) || strtolower($args['0']['0']) != 'd' || !$args['0']['2']) {
+        exit;
+    }
+}
+
+function vToOne($data) {
+    $ret = array();
+    foreach($data as $v) {
+        $ret[] = is_array($v) || is_object($v) ? '[Array OR Object]' : $v;
+    }
+
+    return $ret;
 }
 
 function m() {
@@ -24,16 +50,16 @@ function m() {
     exit;
 }
 
-function l() {
-    $filepath = '/fon/log/fon_log.' . date('Y-m-d', time());
-    $con = file_get_contents($filepath);
-    file_put_contents($filepath, $con . print_r(func_get_args(), true));
-}
+// function l() {
+//     $filepath = '/fon/log/fon_log.' . date('Y-m-d', time());
+//     $con = file_get_contents($filepath);
+//     file_put_contents($filepath, $con . print_r(func_get_args(), true));
+// }
 
-function d() {
-    $filepath = '/fon/log/fon_log.' . date('Y-m-d', time());
-    file_put_contents($filepath, '');
-}
+// function d() {
+//     $filepath = '/fon/log/fon_log.' . date('Y-m-d', time());
+//     file_put_contents($filepath, '');
+// }
 
 # 获取当前错误的配置
 function e() {
@@ -65,6 +91,10 @@ function e() {
     
 
     v($ret);
+}
+
+function j() {
+    die(json_encode(func_get_args()));
 }
 
 function pp() {

@@ -249,29 +249,49 @@ class D {
     }
 
     public function s($filterShow) {
-    	$this->filterShow = $filterShow;
+    	$this->filterShow = func_get_args();
 		register_shutdown_function([$this, 'finalShow']);
 	}
 
 	public function finalShow() {
-		if(empty($this->s)) {
+		if(empty($this->s) || empty($this->filterShow['0'])) {
 			return;
 		}
+		$cfg = $this->filterShow['1'];
 		$ret = [];
 		echo '<pre>';
+		$split = "\n" . str_repeat('-', 66) . "\n\n";
+		if($cfg['count']) {
+			echo '共' . count($this->s). '次调用.' . $split;
+		}
+		$uniqueAr = [];
+		$sortinfo = '';
 		foreach($this->s as $k => $v) {
-			echo "[{$v['date']}:{$v['returnDesc']}] {$v['command']} \n";
+			$uniqueAr[$v['command']] += 1;
+			$sortinfo .= "[{$v['date']}:{$v['returnDesc']}] {$v['command']} \n";
 			$this->s[$k]['returnAr'] = json_decode($v['return'], true);
 			$this->s[$k]['returnCount'] = mb_strlen($v['return']);
 		}
-
-		$show = [];
-		foreach($this->s as $v) {
-			foreach ($this->filterShow as $sk) {
-				unset($v[$sk]);
+		if($cfg['unique']) {
+			$unique = '';
+			arsort($uniqueAr);
+			foreach($uniqueAr as $command => $v) {
+				$unique .= "[{$v}:{$command}]\n";
 			}
-			$show[] = $v;
+			echo $unique . $split;
 		}
-		p($show);
+		if($cfg['sortinfo']) {
+			echo $sortinfo . $split;
+		}
+		if($cfg['detail']['detail']) {
+			$show = [];
+			foreach($this->s as $v) {
+				foreach ($this->filterShow['2'] as $sk) {
+					unset($v[$sk]);
+				}
+				$show[] = $v;
+			}
+			p($show);
+		}
 	}
 }

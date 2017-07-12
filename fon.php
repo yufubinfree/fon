@@ -15,16 +15,39 @@ $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'; # ajax设定
 // \F\D::_n()->c_call('result', 'admin/User/getUsersByIds', ['a'=>'b']);
 \F\D::_n()->c_call('useSave', [
     'admin/Admin/info', 
-    'admin/Role/info', 
-    'admin/LocalDealBusiness/list', 
     'admin/Admin/list',
+    'admin/LocalDealBusiness/list', 
     'admin/LocalDealCity/list',
+    'admin/Role/info', 
+    'admin/User/getUsersByIds',
     'LocalDeal/cityList',
-    'web/Season/list'
+    'web/Season/list',
+    // 'admin/Comment2/list',
+    'admin/Deal/list',
 ]);
 // \F\D::_n()->callUseSaveAll(); # 使用所有缓存
 \F\D::_n()->m([
-    // 'admin/Vote/list'
+    // 'admin/Vote/list',
+    // 'admin/Comment2/list',
 ]);
-// \F\D::_n()->s(['returnAr', 'time', 'redisKey', 'dataAr', 'return',]);
+// \F\D::_n()->s(false);
+\F\D::_n()->s(// 是否展示
+    0, 
+    [ // 选项
+        'count'  => 1,
+        'unique' => 1,
+        // 'sortinfo' => 1, // 按照调用顺序展示
+        // 'detail' => 1, // 细节调用
+    ],
+    [ // 细节的数据过滤
+        'returnAr', 
+        'time', 
+        'redisKey', 
+        'data', 
+        'dataAr', 
+        'return',
+    ]
+);
 
+
+// test20170712112450();

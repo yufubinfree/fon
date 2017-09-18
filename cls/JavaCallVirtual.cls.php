@@ -39,11 +39,11 @@ class J
 	protected $_useSaveKey    = array(); # 需要使用文件的命令
 	public    $changeUrl      = null; # 命令存放
 	
-	protected $showEndAr      = []; # 展示结果时添加在后面的部分
+	protected $showEndAr      = array(); # 展示结果时添加在后面的部分
 	protected $showEndStr     = ''; # 展示结果时添加在后面的部分
 	protected $HasNewJavaError = false; # 是否有java返回异常
 	protected $showNewJavaError = true; # 有新的java错误是否显示
-	protected $_unSaveResult = []; # 不需要展示返回的数据
+	protected $_unSaveResult = array(); # 不需要展示返回的数据
 
 	protected $_msg          = ''; # 显示结果时,需要用户看到的信息
 

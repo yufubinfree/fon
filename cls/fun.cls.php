@@ -50,11 +50,11 @@ function m() {
     exit;
 }
 
-// function l() {
-//     $filepath = '/fon/log/fon_log.' . date('Y-m-d', time());
-//     $con = file_get_contents($filepath);
-//     file_put_contents($filepath, $con . print_r(func_get_args(), true));
-// }
+function fon_log() {
+    $filepath = '/home/opt/logs/fon_log.' . date('Y-m-d', time());
+    file_put_contents($filepath, file_get_contents($filepath) . print_r(func_get_args(), true));
+    // v('log', $filepath);
+}
 
 // function d() {
 //     $filepath = '/fon/log/fon_log.' . date('Y-m-d', time());

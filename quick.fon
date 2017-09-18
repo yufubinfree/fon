@@ -414,6 +414,14 @@ public SdkResponse xxx(SdkRequest req) {
     return rep;
 }
 
+# 时间戳转时间
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+String start = sdf.format(new Date(Long.valueOf("1500393599"+"000")));
+String time = String.valueOf(sdf.parse("2017-07-18 13:37:58").getTime()/1000);  
+
+# 当前时间戳
+(int) (System.currentTimeMillis() / 1000)
+
 YII:--------------------
 * 数据库
 // INSERT (table name, column values)
@@ -455,3 +463,11 @@ $titles = Yii::$app->db->createCommand('SELECT title FROM post')
 $count = Yii::$app->db->createCommand('SELECT COUNT(*) FROM post')
              ->queryScalar();
 
+JAVA:-----------------
+// 用来记录某个sql的记录
+  <logger name="com.dealmoon.model.ucenter.mapper.ScoreLogEntityMapper" level="debug" additivity="false">
+    <appender-ref ref="STDOUT" />
+  </logger>
+
+// 返回异常新逻辑
+throw new BizException(26, "您的爆料礼卡不足，快去参加爆料活动赢取更多爆料礼卡吧");

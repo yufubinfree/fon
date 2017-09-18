@@ -76,7 +76,7 @@ class C {
     	if(empty($cfg)) {
     		return $data;
     	}
-    	$data = empty($data) || is_string($data) ? [] : $data;
+    	$data = empty($data) || is_string($data) ? array() : $data;
     	if(is_array($cfg['mdata']) && !empty($cfg['mdata'])) {
     		$data['commandInfo'] = array_merge($data['commandInfo'], $cfg['mdata']);
     	}
@@ -89,9 +89,9 @@ class C {
 	private function getCallConfig($command) {
 		$callConfig = $this->_d->cg_call();
 		if(empty($callConfig)) {
-			return [];
+			return array();
 		}
-		return $callConfig[$command] ? $callConfig[$command] : [];
+		return $callConfig[$command] ? $callConfig[$command] : array();
 	}
 }
 
@@ -117,13 +117,13 @@ class D {
 		$this->redis->connect('127.0.0.1', 6379);
 	}
 
-	private $c = [
-		'url' => [
+	private $c = array(
+		'url' => array(
 			'sign'   => null,
 			'newUrl' => null,
-		],
+		),
 		'callUseSaveAll' => false,
-		'call' => [
+		'call' => array(
 			// 'command' => [
 			// 	'useSave' => false, // 是否使用缓存的数据
 			// 	'show'    => false, // 是否展示返回结果
@@ -131,28 +131,30 @@ class D {
 			// 	'mdata'   => '', // 合并添加请求参数
 			// 	'rdate'   => '', // 替换请求参数
 			// ]
-		],
-	];
+		),
+	);
 
 
-	private $r = [
+	private $r = array(
 		'url'         => '', // 默认请求的url
 		'realUrl'     => '', // 真实请求的url
 		'command'     => '', // 请求的命令
 		'data'        => '', // 请求的参数
-		'dataAr'      => [], // 请求的参数
+		'dataAr'      => array(), // 请求的参数
 		'needsReturn' => false, // 是否需要返回
-		'return'      => [], // 是否需要返回
+		'return'      => array(), // 是否需要返回
 		'returnDesc'  => '', // 返回的描述
 		'redisKey'    => '', // 当前请求的redis key
-	];
+		'returnAr'    => '', // 返回的数据
+		'returnCount' => '', // 返回数据的文字数
+	);
 
-	private $m = []; // 监控的请求
-	private $s = [];
-	private $filterShow = [];
+	private $m = array(); // 监控的请求
+	private $s = array();
+	private $filterShow = array();
 
 	public function runInit() {
-		$this->r = [];
+		$this->r = array();
 	}
 
 	public function setUrl(&$url) {
@@ -195,7 +197,7 @@ class D {
 		if(empty($data) || empty($data['command'])) {
 			return '';
 		}
-		$this->r['command'] = str_replace(["\\"], [''], $data['command']);
+		$this->r['command'] = str_replace(array("\\"), array(''), $data['command']);
 		return $this->r['command'];
 	}
 
@@ -225,10 +227,6 @@ class D {
     }
 
     public function save() {
-    	if(!empty($this->m) && !in_array($this->r['command'], $this->m)) {
-    		return;
-    	}
-
     	$this->r['redisKey'] = $this->redisKey();
     	$this->redis->set($this->r['redisKey'], $this->r['return']);
     	$this->r['time'] = time();
@@ -241,30 +239,34 @@ class D {
     	if(empty($commands)) {
 			return ;
 		}
-		$this->m = !is_array($this->m) ? [] : $this->m;
+		$this->m = !is_array($this->m) ? array() : $this->m;
 		if(is_array($commands)) {
 			$this->m = array_merge($this->m, array_unique($commands));
+		} else {
+			$this->m[] = $commands;
 		}
-		$this->m[] = $commands;
     }
 
     public function s($filterShow) {
-    	$this->filterShow = func_get_args();
-		register_shutdown_function([$this, 'finalShow']);
+    	$this->filterShow = $filterShow;
+		register_shutdown_function(array($this, 'finalShow'));
 	}
 
 	public function finalShow() {
-		if(empty($this->s) || empty($this->filterShow['0'])) {
+		if(empty($this->s) || empty($this->filterShow['show'])) {
 			return;
 		}
-		$cfg = $this->filterShow['1'];
-		$ret = [];
+		$cfg = $this->filterShow;
+		$ret = array();
 		echo '<pre>';
 		$split = "\n" . str_repeat('-', 66) . "\n\n";
 		if($cfg['count']) {
 			echo '共' . count($this->s). '次调用.' . $split;
 		}
-		$uniqueAr = [];
+		if(!empty($this->m)) {
+			echo '监控请求:' . implode(', ', $this->m) . $split;
+		}
+		$uniqueAr = array();
 		$sortinfo = '';
 		foreach($this->s as $k => $v) {
 			$uniqueAr[$v['command']] += 1;
@@ -283,15 +285,20 @@ class D {
 		if($cfg['sortinfo']) {
 			echo $sortinfo . $split;
 		}
-		if($cfg['detail']['detail']) {
-			$show = [];
-			foreach($this->s as $v) {
-				foreach ($this->filterShow['2'] as $sk) {
-					unset($v[$sk]);
+		if($cfg['detail']) {
+			$show = array();
+			foreach($this->s as $k => $v) {
+		    	if(!empty($this->m) && !in_array($v['command'], $this->m)) {
+		    		continue;
+		    	}
+				foreach($v as $key => $val) {
+					if(!in_array($key, $cfg['detail'])) {
+						continue;
+					}
+					$show[$k][$key] = $val;
 				}
-				$show[] = $v;
 			}
-			p($show);
+			empty($show) ? '' : p($show);
 		}
 	}
 }

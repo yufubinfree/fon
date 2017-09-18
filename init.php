@@ -36,11 +36,14 @@ foreach($initPath as $suffix => $path) {
 	}
 }
 
-# 引入测试的文件
-foreach (scandir(F_TEST) as $fileName) {
-    if(strpos($fileName, '.php') === false) {
-        continue;
-    }
 
-    require(F_TEST . $fileName);
+# 引入测试的文件
+if(version_compare(PHP_VERSION, '5.4.0') >= 0) {
+	foreach (scandir(F_TEST) as $fileName) {
+	    if(strpos($fileName, '.php') === false) {
+	        continue;
+	    }
+
+	    require(F_TEST . $fileName);
+	}	
 }

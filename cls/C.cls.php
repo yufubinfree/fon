@@ -14,6 +14,9 @@ class C {
 	}
 
 	private function __construct() {
+		if(!class_exists('redis')) {
+			return;
+		}
 		$this->_r = new \redis();
 		$this->_r->connect('127.0.0.1', 6379);
 		$this->_d = D::_n();
@@ -22,7 +25,9 @@ class C {
 	public function _c(&$url, &$data) {
 		$this->_d->runInit(); // 初始化
 		$this->_d->setUrl($url); // 初始化URL
-		$this->_d->r_data(json_decode($data, true)); // 初始化请求
+		$dataDecode = json_decode($data, true);
+		$dataDecode['commandInfo'] = $dataDecode['commandInfo'] ? $dataDecode['commandInfo'] : (object) array();
+		$this->_d->r_data($dataDecode); // 初始化请求
 
 		// 更改命令
 		$this->_d->c_command($data);
@@ -34,7 +39,7 @@ class C {
 		$data    = json_encode($call);
 
 		$this->_d->r_dataAr($call);
-		$this->_d->r_data($data);
+		$this->_d->R($data);
 		$this->_d->r_redisKey($this->_d->redisKey());
 
 		// 返回数据
@@ -76,12 +81,15 @@ class C {
     	if(empty($cfg)) {
     		return $data;
     	}
-    	$data = empty($data) || is_string($data) ? array() : $data;
+    	$data = empty($data) || is_string($data) ? (object) array() : $data;
     	if(is_array($cfg['mdata']) && !empty($cfg['mdata'])) {
     		$data['commandInfo'] = array_merge($data['commandInfo'], $cfg['mdata']);
     	}
     	if(is_array($cfg['rdata']) && !empty($cfg['rdata'])) {
     		$data['commandInfo'] = $cfg['rdata'];
+    	}
+    	if(empty($data['commandInfo'])) {
+    		$data['commandInfo'] = $data['commandInfo'] ? $data['commandInfo'] : (object) array();
     	}
     	return $data;
     }	
@@ -113,6 +121,9 @@ class D {
 		return self::$_n;
 	}
 	private function __construct() {
+		if(!class_exists('redis')) {
+			return;
+		}
 		$this->redis = new \redis();
 		$this->redis->connect('127.0.0.1', 6379);
 	}
@@ -223,7 +234,7 @@ class D {
     }
 
     public function redisKey() {
-		return $this->r['command'] . '::' . md5(json_encode($this->r['data']));
+		return md5($this->r['url']) . ':::' . $this->r['command'] . '::' . md5(json_encode($this->r['data']));
     }
 
     public function save() {
@@ -273,6 +284,7 @@ class D {
 			$sortinfo .= "[{$v['date']}:{$v['returnDesc']}] {$v['command']} \n";
 			$this->s[$k]['returnAr'] = json_decode($v['return'], true);
 			$this->s[$k]['returnCount'] = mb_strlen($v['return']);
+			$this->s[$k]['dataJson'] = json_encode($v['dataAr']);
 		}
 		if($cfg['unique']) {
 			$unique = '';

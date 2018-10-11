@@ -97,6 +97,7 @@ class TCurl {
             CURLOPT_HEADER         => $this->config['header'],
             CURLOPT_RETURNTRANSFER => $this->config['retStr'],
             CURLOPT_FOLLOWLOCATION => $this->config['follow'],
+            CURLOPT_HTTPHEADER     => $this->config['httpheader'],
             CURLOPT_NOBODY         => $this->config['nobody'],
             CURLOPT_POST           => !empty($this->post),
             CURLOPT_POSTFIELDS     => is_array($this->post) 

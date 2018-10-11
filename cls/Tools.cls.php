@@ -385,11 +385,51 @@ class Tools {
 	    return self::ret($result['rows']);
 	}
 
+	public function callUrlMethod($method, $url, $data = array(), $time = 300, $json = true) {
+        $url .= strtolower($method) == 'get' ? '?' . http_build_query($data) : '';
+        curl_setopt($this->curl, CURLOPT_URL, $url);
+        curl_setopt($this->curl, CURLOPT_HEADER, 0);
+        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, TRUE);
+
+        $data_ori = $data;
+        if(strtolower($method) == 'post'){
+            if($json){
+                // curl_setopt($this->curl, CURLOPT_HTTPHEADER,array('Content-Type: application/json'));
+                // $data = json_encode($data);
+            }else{
+                $data = http_build_query($data);
+                if(!$data) {
+                    $data = $data_ori;
+                }
+            }
+            curl_setopt($this->curl, CURLOPT_POST, 1);
+            curl_setopt($this->curl, CURLOPT_POSTFIELDS, $data);
+        } else {
+            curl_setopt($this->curl, CURLOPT_POST, 0);
+        }
+        curl_setopt($this->curl, CURLOPT_NOBODY, FALSE);
+        curl_setopt($this->curl, CURLOPT_TIMEOUT, $time);
+        $result = curl_exec($this->curl);
+
+        return $json ? json_decode($result, true) : $result; 
+    }
+
+    function callUrlByConfig($url, $data, $config) {
+    	$curl = new TCurl($url, $config, $data);
+        $result = $curl->execOne();
+        return array(
+            'url'       => $url,
+            'result'    => $result,
+            'http_code' => $curl->result['info']['http_code'],
+            'time_cost' => $curl->result['info']['total_time'],
+        );
+    }
+
 	function callUrl($url, $time = 60, $data = array(), $json = false, $for_result = false) 
     {
         $postData = $json ? json_encode($data) : http_build_query($data);
         $curl = new TCurl($url, array(
-        	'timeOut' => $time,
+			'timeOut'    => $time,
         ), $postData);
         $result = $curl->execOne();
 

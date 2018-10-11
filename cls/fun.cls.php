@@ -7,13 +7,32 @@ $GLOBALS['FON'] = array(
 register_shutdown_function('handle_fun_define');
 
 function handle_fun_define() {
-    if($GLOBALS['FON']['elog']) {
+    // debug();
+    if(isset($GLOBALS['FON']['elog']) && $GLOBALS['FON']['elog']) {
         flog(print_r(array(
             '总数'  => count($GLOBALS['FON']['elog']),
             '标识'  => array_column($GLOBALS['FON']['elog'], 'key'),
             '数据:' => $GLOBALS['FON']['elog'],
         ), true), 'elog', false);
         // flog(json_encode($GLOBALS['FON']['elog']), 'elog');
+    }
+    # 程序结束后添加的代码
+    if(SHOW_XHPROF !== false && !defined('XHPROFSHOWED')) {
+        define('XHPROFSHOWED', true);
+        // stop profiler
+        $xhprof_data = xhprof_disable();
+        // display raw xhprof data for the profiler run
+        # print_r($xhprof_data);
+        # $XHPROF_ROOT = realpath(dirname(__FILE__) .'/..');
+        $XHPROF_ROOT = realpath('/Users/yufubin/Documents/Code/xhprof/');
+        include_once $XHPROF_ROOT . "/xhprof_lib/utils/xhprof_lib.php";
+        include_once $XHPROF_ROOT . "/xhprof_lib/utils/xhprof_runs.php";
+        // save raw data for this profiler run using default
+        // implementation of iXHProfRuns.
+        $xhprof_runs = new XHProfRuns_Default();
+        // save the run under a namespace "xhprof_foo"
+        $run_id = $xhprof_runs->save_run($xhprof_data, "xhprof_foo");
+        echo "<hr />XHPROF:<a href='http://xhprof.dealmoon.com/index.php?run=$run_id&source=xhprof_foo'>http://xhprof.dealmoon.com/index.php?run=$run_id&source=xhprof_foo</a>";
     }
 }
 

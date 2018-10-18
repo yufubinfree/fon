@@ -7,14 +7,17 @@ class TCurl {
     private $post   = array(); # 需要POST的信息
 
     private $config = array(
-        'url'     => '', # 调用的URL
-        'timeOut' => 60, # 超时时间
-        'header'  => 0,  # 是否将头信息作为数据流输出
-        'retStr'  => TRUE, # 将返回作为文件流格式返回,而不是直接输出
-        'follow'  => TRUE, # 跟随重定向
-        'nobody'  => FALSE, # 启用时将不对HTML中的BODY部分输出
-        'showAll' => FALSE, # 是否显示所有返回数据
-        'cookie'  => FALSE, # 是否携带COOKIE
+        'url'        => '', # 调用的URL
+        'timeOut'    => 60, # 超时时间
+        'header'     => 0,  # 是否将头信息作为数据流输出
+        'retStr'     => TRUE, # 将返回作为文件流格式返回,而不是直接输出
+        'follow'     => TRUE, # 跟随重定向
+        'nobody'     => FALSE, # 启用时将不对HTML中的BODY部分输出
+        'showAll'    => FALSE, # 是否显示所有返回数据
+        'cookie'     => FALSE, # 是否携带COOKIE
+        'httpheader' => array(), # 头信息 ["Content-Type: text/xml; charset=utf-8","Expect: 100-continue"]
+        'rest'       => null, # 是否是rest请求
+        'userpwd'    => null, # 用户名和密码
     );
     var $result = array(
         'finish'   => FALSE, # 请求是否已完成
@@ -89,23 +92,23 @@ class TCurl {
     }
 
     public function curlInit() {
-
         $curl   = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL            => $this->config['url'],
             CURLOPT_TIMEOUT        => $this->config['timeOut'],
-            CURLOPT_HEADER         => $this->config['header'],
+            CURLOPT_HEADER         => $this->config['header'], 
             CURLOPT_RETURNTRANSFER => $this->config['retStr'],
             CURLOPT_FOLLOWLOCATION => $this->config['follow'],
             CURLOPT_HTTPHEADER     => $this->config['httpheader'],
             CURLOPT_NOBODY         => $this->config['nobody'],
-            CURLOPT_POST           => !empty($this->post),
+            CURLOPT_POST           => !empty($this->post) && strtoupper($this->config['rest']) != 'POST',
             CURLOPT_POSTFIELDS     => is_array($this->post) 
                 ? http_build_query($this->post)
                 : $this->post,
             CURLOPT_COOKIE         => $this->config['cookie'] ? $this->getCookie() : '',
+            CURLOPT_CUSTOMREQUEST  => $this->config['rest'],
+            CURLOPT_USERPWD        => $this->config['userpwd'],
         ));
-
         return $curl;
     }
 
@@ -118,7 +121,6 @@ class TCurl {
 
     /**
      * 批量运行并发请求并返回结果
-     * )
      */
     function execMore(){ 
         $multi_handle = curl_multi_init(); 

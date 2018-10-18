@@ -153,17 +153,92 @@ class Tools {
 		return $ret;
 	}
 
+	function getListNumber($page, $totalPage, $showNum = 8) {
+		if($page > $totalPage) {
+			$page = 1;
+		}
+		$countLeft = ceil(($showNum - 1) / 2);
+		# 左侧数组计算
+		$ret = [$page];
+		$leftAr = [];
+		for($i = $page - 1; $i > 0; $i--) {
+			# 第一页就跳出
+			if($countLeft-- == 1) {
+				break;
+			}
+			array_unshift($ret, $i);
+		}
+		$countRight = $showNum - count($ret);
+		for($i = $page + 1; $i < $totalPage; $i++) {
+			if(--$countRight < 1) {
+				break;
+			}
+			array_push($ret, $i);
+		}
+		$leftNum = $showNum - count($ret);
+		if($leftNum > 0) {
+			# 右边不够补左边
+			for($i = reset($ret) - 1; $i > 0; $i--) {
+				# 第一页就跳出
+				if($leftNum-- == 1) {
+					break;
+				}
+				array_unshift($ret, $i);
+			}
+		}
+		# 不为第一页就添加第一页
+		if(reset($ret) <> 1) {
+			array_unshift($ret, 1);
+		}
+		# 不为最后一页就添加最后一页
+		if(end($ret) != $totalPage) {
+			array_push($ret, $totalPage);	
+		}
+		return array(
+			'page'   => $page,
+			'pageAr' => $ret,
+		);
+	}
+
+	function getListString($page, $totalPage, $showNum = 8) {
+
+		$ret = $this->getListNumber($page, $totalPage);
+		$str = '<table class="table table-striped table-hover"><tbody><tr><td>';
+		$url = $_SERVER['REQUEST_URI'] . '://' . $_SERVER['SERVER_NAME'] . reset(explode('?', $_SERVER['REQUEST_URI']));
+		$get = $_GET;
+		unset($get['r']);
+		// $url .= count($get) ? http_build_query($get);
+		foreach($ret['pageAr'] as $v) {
+
+		}
+		$str .= '</td></tr></tbody></table>';
+		$ret['str'] = '';
+	}
+
+	function print_list($info, $total, $page = 1, $pageSize = 20) {
+		$colnum = count($info['0']);
+		$head = '<tr><th colspan="' . $colnum . '" class="info t-title">' . "{$total}条数据  共" . ceil($total/$pageSize) . '页</th></tr>';
+		$end .= '<tr><td colspan="' . $colnum . '">';
+		$listNumber = $this->getListString($page, ceil($total/$pageSize));
+		foreach($listNumber as $v) {
+			// $end .= 
+		}
+		'<input type="text" class="form-control" id="pageNum" placeholder="跳转到" value=""/><input class="btn btn-primary" type="botton" type="button" value="跳转"/>';
+		$end .= '</td></tr>';
+		$ret .= $this->print_ar($info, array('head' => $head, 'end' => $end));
+		return $ret;
+	}
+
 	# 打印数组信息
-	function print_ar($info, $type='')
+	function print_ar($info, $cfg = array())
     {
         if(!is_array($info) || empty($info)) {
             return false;
         }
-
         $title = array_keys($info['0']);
-
         // 定义首行
         $ret = '<table class="table table-striped table-hover"><tbody>';
+        $ret .= $cfg['head'];
         $ret .= '<tr>';
         foreach($title as $tcol) {
             $ret .= "<td>{$tcol}</td>";
@@ -181,6 +256,7 @@ class Tools {
             }
             $ret .= '</tr>';
         }
+        $ret .= $cfg['end'];
         $ret .= '</tbody></table>';
 
         return $ret;
@@ -420,6 +496,7 @@ class Tools {
         return array(
             'url'       => $url,
             'result'    => $result,
+            'jresult'   => json_decode($result, true),
             'http_code' => $curl->result['info']['http_code'],
             'time_cost' => $curl->result['info']['total_time'],
         );

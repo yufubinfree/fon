@@ -159,8 +159,8 @@ class Tools {
 		}
 		$countLeft = ceil(($showNum - 1) / 2);
 		# 左侧数组计算
-		$ret = [$page];
-		$leftAr = [];
+		$ret = array($page);
+		$leftAr = array();
 		for($i = $page - 1; $i > 0; $i--) {
 			# 第一页就跳出
 			if($countLeft-- == 1) {
@@ -509,7 +509,6 @@ class Tools {
 			'timeOut'    => $time,
         ), $postData);
         $result = $curl->execOne();
-
         if($for_result) {
         	$back_json = json_decode($result, true);
         	return $back_json ? $back_json : $result;

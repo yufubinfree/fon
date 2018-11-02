@@ -83,23 +83,51 @@ function v() {
     }
 }
 
-function debug() {
+function debug($set, $reverse = false, $file = '') {
     $ret = debug_backtrace();
     $info = reset($ret);
     $args = func_get_args();//获得传入的所有参数的数组
-    echo '<pre>';
+    $show = [];
     foreach($ret as $v) {
-            echo print_r(array(
-                'self'     => $v['file'] . '::' . $v['function'] . ':' . $v['line'],
-                'file'     => $v['file'],
-                'line'     => $v['line'],
-                'class'    => $v['class'],
-                'function' => $v['function'],
-                'type'     => $v['type'],
-                'args'     => $args['0'] ? $v['args'] : vToOne($v['args']),
-            ), true);
+        $show[] = array(
+            'self'     => $v['file'] . '::' . $v['function'] . ':' . $v['line'],
+            'file'     => $v['file'],
+            'line'     => $v['line'],
+            'class'    => $v['class'],
+            'function' => $v['function'],
+            'type'     => $v['type'],
+            'args'     => $args['0'] ? $v['args'] : vToOne($v['args']),
+        );
     }
-    echo '</pre><hr />' . ++$GLOBALS['FON']['traceCount'] . '<hr />';
+    if($reverse) {
+        $show = array_reverse($show);
+    }
+    $str = '<pre>';
+    if (!empty($set) && is_array($set)) {
+        foreach($show as $v) {
+            $tmp_show = [];
+            in_array('self', $set) ? $tmp_show['self'] = $v['self'] : '';
+            in_array('file', $set) ? $tmp_show['file'] = $v['file'] : '';
+            in_array('line', $set) ? $tmp_show['line'] = $v['line'] : '';
+            in_array('class', $set) ? $tmp_show['class'] = $v['class'] : '';
+            in_array('function', $set) ? $tmp_show['function'] = $v['function'] : '';
+            in_array('type', $set) ? $tmp_show['type'] = $v['type'] : '';
+            in_array('args', $set) ? $tmp_show['args'] = $v['args'] : '';
+            $str .= count($tmp_show) == 1 ? reset($tmp_show) : print_r($tmp_show, true);
+            $str .= "\n";
+        }
+    } else {
+        foreach($show as $v) {
+            $str .= print_r($v, true);
+        }
+    }
+    $str .= '</pre><hr />' . ++$GLOBALS['FON']['traceCount'] . '<hr />';
+
+    if(empty($file)) {
+        echo $str;
+    } else {
+        flog($str, $file, true);
+    }
 }
 
 function vToOne($data) {
@@ -303,4 +331,77 @@ function g($type) {
     }
     echo $ret;
     die();
+}
+
+function filterUtf8($str)
+{
+    /*utf8 编码表：
+    * Unicode符号范围           | UTF-8编码方式
+    * u0000 0000 - u0000 007F   | 0xxxxxxx
+    * u0000 0080 - u0000 07FF   | 110xxxxx 10xxxxxx
+    * u0000 0800 - u0000 FFFF   | 1110xxxx 10xxxxxx 10xxxxxx
+    *
+    */
+    $re = '';
+    $str = str_split(bin2hex($str), 2);
+    
+    $mo =  1<<7;
+    $mo2 = $mo | (1 << 6);
+    $mo3 = $mo2 | (1 << 5);         //三个字节
+    $mo4 = $mo3 | (1 << 4);          //四个字节
+    $mo5 = $mo4 | (1 << 3);          //五个字节
+    $mo6 = $mo5 | (1 << 2);          //六个字节
+    
+    for ($i = 0; $i < count($str); $i++) {
+        if ((hexdec($str[$i]) & ($mo)) == 0) {
+            $re .=  chr(hexdec($str[$i]));
+            continue;
+        }
+        
+        //4字节 及其以上舍去
+        if ((hexdec($str[$i]) & ($mo6) )  == $mo6) {
+            $i = $i +5;
+            continue;
+        }
+        
+        if ((hexdec($str[$i]) & ($mo5) )  == $mo5) {
+            $i = $i +4;
+            continue;
+        }
+        
+        if ((hexdec($str[$i]) & ($mo4) )  == $mo4) {
+            $i = $i +3;
+            continue;
+        }
+        
+        if ((hexdec($str[$i]) & ($mo3) )  == $mo3 ) {
+            $i = $i +2;
+            if (((hexdec($str[$i]) & ($mo) )  == $mo) &&  ((hexdec($str[$i - 1]) & ($mo) )  == $mo)  ) {
+                $r = chr(hexdec($str[$i - 2])).
+                chr(hexdec($str[$i - 1])).
+                chr(hexdec($str[$i]));
+                $re .= $r;
+            }
+            continue;
+        }
+        
+        if ((hexdec($str[$i]) & ($mo2) )  == $mo2 ) {
+            $i = $i +1;
+            if ((hexdec($str[$i]) & ($mo) )  == $mo) {
+                $re .= chr(hexdec($str[$i - 1])) . chr(hexdec($str[$i]));
+            }
+            continue;
+        }
+    }
+    return $re;
+}
+
+function filterJsonEncodeError($data) {
+    $fun = function($str) {
+        return mb_convert_encoding($str, "UTF-8", "UTF-8");
+    };
+    if(!empty($data) && is_array($data)) {
+        return array_map($fun, $data);
+    }
+    return $fun($data);
 }

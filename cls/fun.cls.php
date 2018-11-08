@@ -87,10 +87,14 @@ function debug($set, $reverse = false, $file = '') {
     $ret = debug_backtrace();
     $info = reset($ret);
     $args = func_get_args();//获得传入的所有参数的数组
-    $show = [];
+    $show = array();
     foreach($ret as $v) {
+        $self = str_replace('/Users/yufubin/Documents/Code/', '', $v['file']);
+        $self .= empty($v['class']) ? '' : " [{$v['class']}]";
+        $self .= " :: {$v['function']} : {$v['line']}";
+        $self = trim($self);
         $show[] = array(
-            'self'     => $v['file'] . '::' . $v['function'] . ':' . $v['line'],
+            'self'     => $self,
             'file'     => $v['file'],
             'line'     => $v['line'],
             'class'    => $v['class'],
@@ -105,7 +109,7 @@ function debug($set, $reverse = false, $file = '') {
     $str = '<pre>';
     if (!empty($set) && is_array($set)) {
         foreach($show as $v) {
-            $tmp_show = [];
+            $tmp_show = array();
             in_array('self', $set) ? $tmp_show['self'] = $v['self'] : '';
             in_array('file', $set) ? $tmp_show['file'] = $v['file'] : '';
             in_array('line', $set) ? $tmp_show['line'] = $v['line'] : '';
@@ -404,4 +408,78 @@ function filterJsonEncodeError($data) {
         return array_map($fun, $data);
     }
     return $fun($data);
+}
+
+if(!function_exists("array_column")) {
+    function array_column($array, $column_name) {
+        return array_map(
+            function($element) use($column_name) {
+                return $element[$column_name];
+            }
+            , $array
+        );
+    }
+}
+
+/**
+ * 针对二维数组的某个字段的中文排序
+ * @param  [type] $arr  [description]
+ * @param  [type] $name [description]
+ * @return [type]       [description]
+ */
+function arrayMultiSort($arr, $name, $changeKey = true){
+    $charter = function($str) {
+        $fchar=ord($str{0});
+        if($fchar>=ord('A')&&$fchar<=ord('z')) return strtoupper($str{0});  
+        $s1=iconv('UTF-8','gb2312',$str);  
+        $s2=iconv('gb2312','UTF-8',$s1);  
+        $s=$s2==$str?$s1:$str;  
+        $asc=ord($s{0})*256+ord($s{1})-65536;
+        if ($asc >= -20319 && $asc <= -20284) return 'A';
+        if ($asc >= -20283 && $asc <= -19776) return 'B';
+        if ($asc >= -19775 && $asc <= -19219) return 'C';
+        if ($asc >= -19218 && $asc <= -18711) return 'D';
+        if ($asc >= -18710 && $asc <= -18527) return 'E';
+        if ($asc >= -18526 && $asc <= -18240) return 'F';
+        if ($asc >= -18239 && $asc <= -17923) return 'G';
+        if ($asc >= -17922 && $asc <= -17418) return 'H';
+        if ($asc >= -17417 && $asc <= -16475) return 'J';
+        if ($asc >= -16474 && $asc <= -16213) return 'K';
+        if ($asc >= -16212 && $asc <= -15641) return 'L';
+        if ($asc >= -15640 && $asc <= -15166) return 'M';
+        if ($asc >= -15165 && $asc <= -14923) return 'N';
+        if ($asc >= -14922 && $asc <= -14915) return 'O';
+        if ($asc >= -14914 && $asc <= -14631) return 'P';
+        if ($asc >= -14630 && $asc <= -14150) return 'Q';
+        if ($asc >= -14149 && $asc <= -14091) return 'R';
+        if ($asc >= -14090 && $asc <= -13319) return 'S';
+        if ($asc >= -13318 && $asc <= -12839) return 'T';
+        if ($asc >= -12838 && $asc <= -12557) return 'W';
+        if ($asc >= -12556 && $asc <= -11848) return 'X';
+        if ($asc >= -11847 && $asc <= -11056) return 'Y';
+        if ($asc >= -11055 && $asc <= -10247) return 'Z';
+        return $str{0};
+    };
+    $newarr = array();
+    foreach($arr as $key => $val){        
+        $str = $val[$name];
+        $num = ceil(strlen($str)/3)+1;    
+        $k = ''; $n = 0;
+        for($i=0; $i<=$num; $i++){        
+            $m = substr($str, $i*3 - $n*2,3);
+            if(!eregi("[^\x80-\xff]","$m")){    
+                $str1 = substr($str,$i*3-$n*2,3);
+                $k = $k . $charter($str1);
+            }else{
+                $m = substr($str, $i*3-$n*2, 1);
+                $k = $k . $m;                
+                $n++;                    
+            }
+        }
+        $kj = 0;
+        while(isset($newarr[$k.$kj])) { $kj++; }
+        $newarr[$k.$kj] = $val;
+    }
+    ksort($newarr);                      
+    return $changeKey ? array_values($newarr) : $newarr; 
 }
